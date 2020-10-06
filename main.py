@@ -38,7 +38,7 @@ dotstar = busio.SPI(board.APA102_SCK, board.APA102_MOSI)
 # === Functions ================================================================
 
 def getVoltage(pin):
-	voltage = (pin.value * 3.3) / 65536
+	voltage = round((pin.value * 3.3) / 65536, 2)
 	return voltage
 
 def getPin(pin):
@@ -69,7 +69,7 @@ def scanInputs():
 		try:
 			threshold, voltage = getPin(pinNumber)
 			print('Threshold: ', threshold)
-			print('Voltage: ', voltage)
+			print('Voltage: ', '%.2f' % voltage )
 			if voltage >= threshold:
 				output.value = False
 				led.value = True
