@@ -10,16 +10,16 @@ import time
 pinCount = 4
 
 pin1 = AnalogIn(board.D1)
-pin1Threshold = 1.6
+pin1Threshold = 1.8
 
 pin2 = AnalogIn(board.D2)
-pin2Threshold = 2.3
+pin2Threshold = 1.8
 
 pin3 = AnalogIn(board.D3)
-pin3Threshold = 1.6
+pin3Threshold = 1.8
 
 pin4 = AnalogIn(board.D4)
-pin4Threshold = 1.6
+pin4Threshold = 1.8
 
 
 # === Board Outputs ============================================================
