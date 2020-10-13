@@ -5,21 +5,24 @@ import busio
 import time
 
 
-# === Board Inputs (and Threshold Voltages) ====================================
+# === Thresholds ===============================================================
+
+triggerBy = 'imperial'   # [imperial, metric, voltage]
+
+pin1Threshold = 3
+pin2Threshold = 3
+pin3Threshold = 3
+pin4Threshold = 3
+
+
+# === Board Inputs =============================================================
 
 pinCount = 4
 
 pin1 = AnalogIn(board.D1)
-pin1Threshold = 1.8
-
 pin2 = AnalogIn(board.D2)
-pin2Threshold = 1.8
-
 pin3 = AnalogIn(board.D3)
-pin3Threshold = 1.8
-
 pin4 = AnalogIn(board.D4)
-pin4Threshold = 1.8
 
 
 # === Board Outputs ============================================================
@@ -37,19 +40,48 @@ dotstar = busio.SPI(board.APA102_SCK, board.APA102_MOSI)
 
 # === Functions ================================================================
 
+def getEstimatedDistance(voltage):
+	voltageRounded = round(voltage, 1)
+	imperial = 1000
+	metric = 1000
+	if (voltageRounded > 3):
+		imperial = 2
+	elif (voltageRounded > 2.8):
+		imperial = 3
+	elif (voltageRounded > 2.2):
+		imperial = 4
+	elif (voltageRounded > 1.8):
+		imperial = 5
+	elif (voltageRounded > 1.4):
+		imperial = 6
+	elif (voltageRounded > 1.2):
+		imperial = 7
+	elif (voltageRounded > 0.8):
+		imperial = 8
+	if imperial != 1000:
+		metric = imperial * 25.4
+	return imperial, metric
+
 def getVoltage(pin):
 	voltage = round((pin.value * 3.3) / 65536, 2)
 	return voltage
 
 def getPin(pin):
+	voltage = 0
 	if pin == 1:
-		return pin1Threshold, getVoltage(pin1)
+		threshold = pin1Threshold
+		voltage = getVoltage(pin1)
 	elif pin == 2:
-		return pin2Threshold, getVoltage(pin2)
+		threshold = pin2Threshold
+		voltage = getVoltage(pin2)
 	elif pin == 3:
-		return pin3Threshold, getVoltage(pin3)
+		threshold = pin3Threshold
+		voltage = getVoltage(pin3)
 	elif pin == 4:
-		return pin4Threshold, getVoltage(pin4)
+		threshold = pin4Threshold
+		voltage = getVoltage(pin4)
+	metric, imperial = getEstimatedDistance(voltage)
+	return threshold, voltage, metric, imperial
 
 def setPixel(red, green, blue):
 	if not dotstar.try_lock():
@@ -67,10 +99,13 @@ def scanInputs():
 	while pinNumber <= pinCount:
 		print('\n--- Pin ' + str(pinNumber) + ' ----------------')
 		try:
-			threshold, voltage = getPin(pinNumber)
+			threshold, voltage, imperial, metric = getPin(pinNumber)
 			print('Threshold: ', threshold)
 			print('Voltage: ', '%.2f' % voltage )
-			if voltage >= threshold:
+			print('Imperial: ', '%.0f' % imperial )
+			print('Metric: ', '%.0f' % metric )
+			print('Trigger By: ', triggerBy)
+			if (voltage >= threshold and triggerBy == 'voltage') or (metric <= threshold and triggerBy == 'metric') or (imperial <= threshold and triggerBy == 'imperial'):
 				output.value = False
 				led.value = True
 				setPixel(14, 180, 14)
