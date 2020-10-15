@@ -8,3 +8,5 @@ The limitation is that you will now only be able to trigger a single pin on the 
 
 This is purely because there are only 5 available pins on the Trinket M0.   Other CircuitPython boards may offer more pins but have not been tested with this script.
 
+![Fritzing Diagram](fritzing.png)
+
